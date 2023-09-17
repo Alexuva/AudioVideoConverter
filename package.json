@@ -4,7 +4,7 @@
   "description": "video converter with ffmpeg",
   "main": "index.js",
   "scripts": {
-    "test": "node index"
+    "test": "node ./dist/Avc"
   },
   "keywords": [
     "video",
