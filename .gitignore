@@ -1,3 +1,4 @@
 node_modules
 video
 dist
+.DS_Store
