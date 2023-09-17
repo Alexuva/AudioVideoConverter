@@ -1,2 +1,2 @@
 # AudioVideoConverter
-Node module that uses Ffmpeg to extract audio and convert videos
+Node module that uses Ffmpeg to extract audio and converts videos
