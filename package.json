@@ -2,9 +2,12 @@
   "name": "videoconverter",
   "version": "0.0.1",
   "description": "video converter with ffmpeg",
-  "main": "index.js",
+  "main": "dist/Avc.js",
+  "types":"dist/Avc.d.ts",
   "scripts": {
-    "test": "node ./dist/Avc"
+    "prepublish": "npm run build",
+    "test": "node dist/Avc.js",
+    "build": "tsc"
   },
   "keywords": [
     "video",

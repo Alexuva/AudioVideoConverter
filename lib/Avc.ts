@@ -32,7 +32,6 @@ export class AVC extends EventEmitter{
                 if(error){
                     reject(error);
                 }else{
-                    console.log(data);
                     resolve(data);
                 }
             })
@@ -129,7 +128,3 @@ export class AVC extends EventEmitter{
         }
     }
 }
-
-const CONVERTER = new AVC();
-
-CONVERTER.getAudio('./video/Orisa.mp4', './video/ejemplo1.mp3', 'mp3');
