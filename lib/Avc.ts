@@ -1,7 +1,8 @@
 import ffmpegStatic from 'ffmpeg-static';
 import Ffmpeg, { FfprobeData } from 'fluent-ffmpeg';
 import ffprobe from '@ffprobe-installer/ffprobe';
-import { Codec } from './types';
+import { Codec } from './Types';
+import * as Enums from './Enum';
 import { EventEmitter } from 'events';
 
 export class AVC extends EventEmitter{
@@ -21,7 +22,7 @@ export class AVC extends EventEmitter{
             }
             
         }catch(Error){
-            this.emit('error');
+            this.emit(Enums.Events.ERROR);
             console.error(Error);
         }
     }
@@ -51,7 +52,7 @@ export class AVC extends EventEmitter{
                     })
                 }
             }catch(error){
-                this.emit('error');
+                this.emit(Enums.Events.ERROR);
                 console.error(error);
             }
         }
@@ -61,7 +62,7 @@ export class AVC extends EventEmitter{
     private hasAudioCodec(data:Codec[]):boolean{
         let hasCodec:boolean = false;
         for( const codec of data){
-            if(codec.type === 'audio'){
+            if(codec.type === Enums.CodecType.AUDIO ){
                 hasCodec = true;
             } 
         }
@@ -71,7 +72,7 @@ export class AVC extends EventEmitter{
     private hasVideoCodec(data:Codec[]):boolean{
         let hasCodec:boolean = false;
         for(const codec of data){
-            if(codec.type === 'video'){
+            if(codec.type === Enums.CodecType.VIDEO){
                 hasCodec = true;
             }
         }
@@ -87,14 +88,14 @@ export class AVC extends EventEmitter{
                 .saveToFile(savingPath)
                 .on('progress', (data)=>{
                     if(data.percent){
-                        this.emit('progress', data.percent);
+                        this.emit(Enums.Events.PROGRESS, data.percent);
                     }
                 })
                 .on('end', ()=>{
-                    this.emit('finish');
+                    this.emit(Enums.Events.FINISH);
                 })
         }catch(error){
-            this.emit('error');
+            this.emit(Enums.Events.ERROR);
             console.error(error)
         }
     }
@@ -107,7 +108,7 @@ export class AVC extends EventEmitter{
             .then( data => this.getCodecs(data))
             .then( codecs => {
                 for(const codec of codecs){
-                    if(codec.type === 'audio'){
+                    if(codec.type === Enums.CodecType.AUDIO){
                         bitrate = Math.floor(codec.bitrate/1000) ?? undefined;
                     }
                 }
@@ -116,14 +117,14 @@ export class AVC extends EventEmitter{
             .then( hasAudio =>{ 
                 if(hasAudio){
                     bitrate = bitrate ?? 320;
-                    this.emit('start');
+                    this.emit(Enums.Events.START);
                     this.audioConversion(filePath, savingPath, outputFormat, bitrate)
                 }else{
                     throw new Error("Doesn't have audio")
                 }
             })
         }catch(error){
-            this.emit('error');
+            this.emit(Enums.Events.ERROR);
             console.error(error)
         }
     }
