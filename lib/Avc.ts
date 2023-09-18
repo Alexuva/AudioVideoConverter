@@ -27,7 +27,7 @@ export class AVC extends EventEmitter{
         }
     }
 
-    private getMetadata(filePath:string):Promise<FfprobeData>{
+    public getMetadata(filePath:string):Promise<FfprobeData>{
         return new Promise((resolve, reject)=>{
             Ffmpeg.ffprobe(filePath, (error, data)=>{
                 if(error){
@@ -79,19 +79,59 @@ export class AVC extends EventEmitter{
         return hasCodec;
     }
 
-    private audioConversion(filePath:string, savingPath:string, outputFormat:string, bitrate:number):void{
+    private videoConversion(filePath:string, savingPath:string, outputFormat:string, fps:number):void{
         try{
             Ffmpeg()
                 .input(filePath)
-                .outputOptions('-ab', `${bitrate}k`)
+                .outputOptions('-filter:v' , `fps=fps=${fps}`)
                 .toFormat(outputFormat)
                 .saveToFile(savingPath)
-                .on('progress', (data)=>{
+                .on(Enums.Events.PROGRESS, (data)=>{
                     if(data.percent){
                         this.emit(Enums.Events.PROGRESS, data.percent);
                     }
                 })
-                .on('end', ()=>{
+                .on(Enums.Events.FINISH, ()=>{
+                    this.emit(Enums.Events.FINISH);
+                })
+        }catch(error){
+            this.emit(Enums.Events.ERROR);
+            console.error(error)
+        }
+    }
+
+    public getVideo(filePath:string, savingPath:string, outputFormat:string, fps:number = 24):void{
+        try{
+            this.init();
+            this.getMetadata(filePath)
+            .then( data => this.getCodecs(data))
+            .then( codecs => this.hasVideoCodec(codecs))
+            .then( hasVideo =>{ 
+                if(hasVideo){
+                    this.emit(Enums.Events.START);
+                    this.videoConversion(filePath, `${savingPath}.${outputFormat}`, outputFormat, fps)
+                }else{
+                    throw new Error("Doesn't have video")
+                }
+            })
+        }catch(error){
+            this.emit(Enums.Events.ERROR);
+            console.error(error)
+        }
+    }
+
+    private audioConversion(filePath:string, savingPath:string, outputFormat:string):void{
+        try{
+            Ffmpeg()
+                .input(filePath)
+                .toFormat(outputFormat)
+                .saveToFile(savingPath)
+                .on(Enums.Events.PROGRESS, (data)=>{
+                    if(data.percent){
+                        this.emit(Enums.Events.PROGRESS, data.percent);
+                    }
+                })
+                .on(Enums.Events.FINISH, ()=>{
                     this.emit(Enums.Events.FINISH);
                 })
         }catch(error){
@@ -102,23 +142,14 @@ export class AVC extends EventEmitter{
 
     public getAudio(filePath:string, savingPath:string, outputFormat:string):void{
         try{
-            let bitrate:number;
             this.init();
             this.getMetadata(filePath)
             .then( data => this.getCodecs(data))
-            .then( codecs => {
-                for(const codec of codecs){
-                    if(codec.type === Enums.CodecType.AUDIO){
-                        bitrate = Math.floor(codec.bitrate/1000) ?? undefined;
-                    }
-                }
-                return this.hasAudioCodec(codecs)
-            })
+            .then( codecs => this.hasAudioCodec(codecs))
             .then( hasAudio =>{ 
                 if(hasAudio){
-                    bitrate = bitrate ?? 320;
                     this.emit(Enums.Events.START);
-                    this.audioConversion(filePath, savingPath, outputFormat, bitrate)
+                    this.audioConversion(filePath, `${savingPath}.${outputFormat}`, outputFormat)
                 }else{
                     throw new Error("Doesn't have audio")
                 }

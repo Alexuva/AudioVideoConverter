@@ -5,7 +5,7 @@ enum CodecType{
 
 enum Events{
     START = 'start',
-    FINISH = 'finish',
+    FINISH = 'end',
     PROGRESS = 'progress',
     ERROR = 'error'
 }
