@@ -1,7 +1,7 @@
 {
-  "name": "videoconverter",
-  "version": "0.0.1",
-  "description": "video converter with ffmpeg",
+  "name": "@alexuva/videoconverter",
+  "version": "1.0.0",
+  "description": "video converter and audio extraction with ffmpeg",
   "main": "dist/Avc.js",
   "types":"dist/Avc.d.ts",
   "scripts": {
@@ -16,6 +16,10 @@
   ],
   "author": "Alejandro Hernández Rosa",
   "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Alexuva/AudioVideoConverter.git"
+  },
   "dependencies": {
     "@ffprobe-installer/ffprobe": "^2.1.2",
     "ffmpeg-static": "^5.2.0",
